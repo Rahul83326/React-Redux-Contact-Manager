@@ -3,7 +3,18 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 const Home = ({ contacts, deleteContact }) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredContacts = contacts.filter((contact) =>
+    Object.values(contact)
+      .join(' ')
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
   const [sortBy, setSortBy] = useState({ key: "", order: "" });
 
   const handleSort = (key) => {
@@ -12,14 +23,6 @@ const Home = ({ contacts, deleteContact }) => {
       order: prevSortBy.key === key && prevSortBy.order === "asc" ? "desc" : "asc",
     }));
   };
-
-  const filteredContacts = contacts.filter((contact) => {
-    const searchFields = ["name", "gender", "department", "birthdate", "contract"];
-    const contactValues = searchFields.map((field) => contact[field].toLowerCase());
-    const searchQueryLower = searchQuery.toLowerCase();
-
-    return contactValues.some((value) => value.includes(searchQueryLower));
-  });
 
   const sortedContacts = sortBy.key
     ? [...filteredContacts].sort((a, b) => {
@@ -48,6 +51,8 @@ const Home = ({ contacts, deleteContact }) => {
               type="text"
               placeholder="Search..."
               className="form-control"
+              value={searchTerm}
+              onChange={handleSearchChange}
               style={{ padding: '0.5rem' }}
             />
           </div>
